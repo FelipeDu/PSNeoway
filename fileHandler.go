@@ -9,8 +9,10 @@ import (
 //	"io/ioutil"
 )
 
+var lastID int64
+
 type Handler interface {
-	//PersistFile(fileLocation string)
+	PersistFile(fileLocation string)
 }
 
 func PersistFile(fileLocation string){
@@ -19,6 +21,9 @@ func PersistFile(fileLocation string){
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ConnectToDB()
+	lastID = getLastID()
 
 	err = ParseAndInsert(file)
 	if err != nil {
@@ -63,8 +68,7 @@ func ParseAndInsert (file *os.File) (error) {
 			}
 		}
 		lineNumber++
-		log.Printf("NUMBER: %d", lineNumber)
-		log.Printf("LINE: %s", bufferedString)
+		ProcessLine(bufferedString)
 	}
 
 	return nil
