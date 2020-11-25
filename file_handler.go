@@ -10,6 +10,7 @@ import (
 )
 
 var lastID int64
+var containsHeader bool = true
 
 type Handler interface {
 	PersistFile(fileLocation string)
@@ -23,7 +24,7 @@ func PersistFile(fileLocation string){
 	}
 
 	ConnectToDB()
-	lastID = getLastID()
+	lastID = GetLastID()
 
 	err = ParseAndInsert(file)
 	if err != nil {
@@ -57,18 +58,20 @@ func ParseAndInsert (file *os.File) (error) {
 
 	bufferReader := bufio.NewReader(file)
 	EOF := false
-	lineNumber := 0
+	id := lastID
 	for !EOF {
-		bufferedString, err := bufferReader.ReadString('\n')
-		if(err != nil){
-			if(err.Error() == "EOF"){
-				EOF = true
-			} else {
-				return err
+		if(!containsHeader || id != lastID){
+			id++
+			bufferedString, err := bufferReader.ReadString('\n')
+			if(err != nil){
+				if(err.Error() == "EOF"){
+					EOF = true
+				} else {
+					return err
+				}
 			}
+			ProcessLine(id,bufferedString)
 		}
-		lineNumber++
-		ProcessLine(bufferedString)
 	}
 
 	return nil

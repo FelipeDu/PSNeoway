@@ -17,6 +17,12 @@ const (
 )
 */
 
+type DBConnector interface {
+	ConnectToDB()
+	GetLastID()(int64)
+	CloseConnection()
+}
+
 var dbase *sql.DB
 
 func ConnectToDB(){
@@ -35,7 +41,7 @@ func ConnectToDB(){
 
 }
 
-func getLastID()(int64){
+func GetLastID()(int64){
 	prepQuery := fmt.Sprintf("select max(id) from %s",tableName)
 	line, err := dbase.Query(prepQuery)
 	if(err != nil){
