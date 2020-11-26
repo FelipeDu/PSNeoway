@@ -67,10 +67,10 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 				if(v == "null" || v == ""){
 					registry.IsValid = false
 				} else {
-					processedDate, err := time.Parse("1800-12-31",v)
+					processedDate, err := time.Parse("2006-01-02",v)
 					if(err != nil){
 						registry.IsValid = false
-						log.Printf("Invalid Date Format")
+						log.Printf("Invalid Date Format: %s",v)
 					} else {
 						registry.DateLastPurchase = processedDate
 					}

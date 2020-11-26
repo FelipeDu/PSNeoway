@@ -46,8 +46,7 @@ func GetLastID()(int64){
 	prepQuery := fmt.Sprintf("select max(id) from %s",tableName)
 	line, err := dbase.Query(prepQuery)
 	if(err != nil){
-		//errorString := fmt.Sprintf("pq: relation \"%s\" does not exist",tableName)
-		errorString := "does not exist"
+		errorString := fmt.Sprintf("relation \"%s\" does not exist",tableName)
 		if(strings.Contains(err.Error(), errorString)){
 			log.Printf("Table \"%s\" does not exist. Creating Table",tableName)
 			err = CreateTable()
@@ -59,14 +58,19 @@ func GetLastID()(int64){
 		log.Fatal(err)
 	}
 
-	var lastID int64
+	var lastID int64 = 0
 	for line.Next(){
-		var maxID string
+		var maxID sql.NullString
 		err = line.Scan(&maxID)
 		if(err != nil){
-			log.Fatal(err)
+			log.Print(err)
 		}
-		lastID,_ = strconv.ParseInt(maxID,10,64)
+		if(maxID.Valid){
+			lastID,err = strconv.ParseInt(maxID.String,10,64)
+			if(err != nil){
+				log.Print(err)
+			}
+		}
 	}
 
 	return lastID
@@ -91,6 +95,7 @@ func BulkSendToDB(bulkRegistry []Registry) (error){
 
 	stmt, err := trsc.Prepare(pq.CopyIn(tableName, "id", "documento", "private", "incomplete", "dateOfLastPurchase", "medianTicket", "lastTicket", "frequentStore", "lastStore", "isValid"))
 	if(err != nil){
+		log.Print("1")
 		log.Fatal(err)
 	}
 
@@ -107,22 +112,26 @@ func BulkSendToDB(bulkRegistry []Registry) (error){
 												fields.LastStore,
 												fields.IsValid)
 		if err != nil {
+			log.Print("2")
 			log.Fatal(err)
 		}
 	}
 
 	_, err = stmt.Exec()
 	if(err != nil){
+		log.Print("3")
 		log.Fatal(err)
 	}
 
 	err = stmt.Close()
 	if(err != nil){
+		log.Print("4")
 		log.Fatal(err)
 	}
 
 	err = trsc.Commit()
 	if(err != nil){
+		log.Print("5")
 		log.Fatal(err)
 	}
 

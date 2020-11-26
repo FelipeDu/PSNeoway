@@ -36,6 +36,8 @@ func PersistFile(fileLocation string){
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	CloseConnection()
 }
 
 func LoadFile (fileLocation string) (*os.File, error) {
@@ -86,8 +88,8 @@ func ParseAndInsert (file *os.File) (error) {
 		}
 		bulkRegistry = append(bulkRegistry, ProcessLine(id,bufferedString," "))
 		currentBulkSize++
-		if(currentBulkSize == maxBulkSize){
-			//TODO send slice to processing
+		if(currentBulkSize == maxBulkSize || EOF){
+			BulkSendToDB(bulkRegistry)
 			currentBulkSize = 0
 			bulkRegistry = nil
 		}
