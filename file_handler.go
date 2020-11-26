@@ -1,12 +1,11 @@
 package main
 
 import (
-//	"fmt"
 	"log"
 	"os"
 	"bufio"
-//	"errors"
-//	"io/ioutil"
+	"database/sql"
+	"sync"
 )
 
 var lastID int64
@@ -14,18 +13,16 @@ var containsHeader bool = true
 const maxBulkSize = 10000
 
 type Handler interface {
-	PersistFile(fileLocation string)
+	PersistFile(fileLocation string, dbase *sql.DB)
 }
 
-func PersistFile(fileLocation string){
+func PersistFile(fileLocation string, dbase *sql.DB){
 
+	lastID = GetLastID(dbase)
 	var file, err = LoadFile(fileLocation)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	ConnectToDB()
-	lastID = GetLastID()
 
 	err = ParseAndInsert(file)
 	if err != nil {
@@ -36,15 +33,12 @@ func PersistFile(fileLocation string){
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	CloseConnection()
 }
 
 func LoadFile (fileLocation string) (*os.File, error) {
 	var file, err = os.Open(fileLocation)
 	if err != nil {
 		return nil, err
-		//log.Fatal(err)
 	}
 	return file, err
 }
@@ -58,6 +52,8 @@ func CloseFile (file *os.File) (error) {
 }
 
 func ParseAndInsert (file *os.File) (error) {
+
+	var wg sync.WaitGroup
 
 	bufferReader := bufio.NewReader(file)
 	EOF := false
@@ -89,11 +85,14 @@ func ParseAndInsert (file *os.File) (error) {
 		bulkRegistry = append(bulkRegistry, ProcessLine(id,bufferedString," "))
 		currentBulkSize++
 		if(currentBulkSize == maxBulkSize || EOF){
-			BulkSendToDB(bulkRegistry)
+			wg.Add(1)
+			go BulkSendToDB(bulkRegistry,dbase,&wg)
 			currentBulkSize = 0
 			bulkRegistry = nil
 		}
 	}
+
+	wg.Wait()
 
 	return nil
 }

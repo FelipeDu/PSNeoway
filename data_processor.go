@@ -31,12 +31,12 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 	
 	var registry Registry
 	registry.ID = id
-	registry.IsValid = true
+	registry.IsValid = true //Registro válido
 
 	var isValid bool = true
 	for i, v := range processedLine{
 		switch i{
-			case 0:
+			case 0://Documento
 				var processedDocument string
 				if(v == "null" || v == ""){
 					registry.IsValid = false
@@ -47,7 +47,7 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 					}
 					registry.PersonCompanyDocument = processedDocument
 				}
-			case 1:
+			case 1://PRIVATE
 				if(v == "null" || v == ""){
 					registry.IsValid = false
 				} else if(v == "0"){
@@ -55,7 +55,7 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 				} else {
 					registry.Private = true
 				}
-			case 2:
+			case 2://INCOMPLENTO
 				if(v == "null" || v == ""){
 					registry.IsValid = false
 				} else if(v == "0"){
@@ -63,19 +63,19 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 				} else {
 					registry.Incomplete = true
 				}
-			case 3:
+			case 3://Data da ultima compra
 				if(v == "null" || v == ""){
 					registry.IsValid = false
 				} else {
 					processedDate, err := time.Parse("2006-01-02",v)
 					if(err != nil){
 						registry.IsValid = false
-						log.Printf("Invalid Date Format: %s",v)
+						//log.Printf("Invalid Date Format: %s",v)
 					} else {
 						registry.DateLastPurchase = processedDate
 					}
 				}
-			case 4:
+			case 4://Média Ticket
 				if(v == "null" || v == ""){
 					registry.IsValid = false
 				} else {
@@ -86,7 +86,7 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 						registry.MedianTicket = processedValue
 					}
 				}
-			case 5:
+			case 5://Ultimo Ticket
 				if(v == "null" || v == ""){
 					registry.IsValid = false
 				} else {
@@ -97,7 +97,7 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 						registry.LastTicket = processedValue
 					}
 				}
-			case 6:
+			case 6://Loja mais frequente
 				var processedDocument string
 				if(v == "null" || v == ""){
 					registry.IsValid = false
@@ -108,7 +108,7 @@ func CreateRegistry(id int64, processedLine []string)(Registry){
 					}
 					registry.FrequentStore = processedDocument
 				}
-			case 7:
+			case 7://Ultima Loja
 				var processedDocument string
 				if(v == "null" || v == ""){
 					registry.IsValid = false

@@ -1,13 +1,10 @@
 package main
 
 import (
-//	"strings"
-//	"container/list"
-//	"fmt"
+	"fmt"
 	"log"
-//	"os"
-//	"database/sql"
-//	"errors"
+	"os"
+	"time"
 )
 
 const (
@@ -16,12 +13,25 @@ const (
 	user     	= "service"
 	password 	= "service"
 	dbname   	= "dbneoway"
-	tableName = "registroCompras"
+	tableName = "client_purchase_registry"
 )
 
 func main(){
 
-	PersistFile("arquivoTeste/test_file.txt")
+	pathToFile := os.Args[1]
+
+	start := time.Now()
+	numArquivos := 10
+	dbase = ConnectToDB()
+
+	for i := 1; i <= numArquivos; i++{
+		PersistFile(pathToFile, dbase)
+	}
+
+	end := time.Now()
+	delta := end.Sub(start)
+	CloseConnection(dbase)
+	fmt.Printf("Inserido %d arquivos em %.2f\n", numArquivos, delta.Seconds())
 
 	log.Printf("DONE\n")
 }

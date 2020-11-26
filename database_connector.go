@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 )
 /*
 const (
@@ -20,13 +21,14 @@ const (
 
 type DBConnector interface {
 	ConnectToDB()
-	GetLastID()(int64)
-	CloseConnection()
+	GetLastID(*sql.DB)(int64)
+	CloseConnection(*sql.DB)
+	BulkSendToDB([]Registry, *sql.DB, *sync.WaitGroup) (error)
 }
 
 var dbase *sql.DB
 
-func ConnectToDB(){
+func ConnectToDB()(*sql.DB){
 
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	var err error
@@ -40,16 +42,17 @@ func ConnectToDB(){
 	dbase.SetMaxOpenConns(10)
 	dbase.SetConnMaxLifetime(0)
 
+	return dbase
 }
 
-func GetLastID()(int64){
+func GetLastID(dbase *sql.DB)(int64){
 	prepQuery := fmt.Sprintf("select max(id) from %s",tableName)
 	line, err := dbase.Query(prepQuery)
 	if(err != nil){
 		errorString := fmt.Sprintf("relation \"%s\" does not exist",tableName)
 		if(strings.Contains(err.Error(), errorString)){
 			log.Printf("Table \"%s\" does not exist. Creating Table",tableName)
-			err = CreateTable()
+			err = CreateTable(dbase)
 			if(err != nil){
 				log.Fatal(err)
 			}
@@ -70,33 +73,35 @@ func GetLastID()(int64){
 			if(err != nil){
 				log.Print(err)
 			}
+			log.Printf("LastId Obtained Successfully: %d",lastID)
 		}
 	}
 
 	return lastID
 }
 
-func CreateTable()(error){
-	prepTableCreation := fmt.Sprintf("create table %s (id integer primary key, documento varchar(14), private boolean, incomplete boolean, dateOfLastPurchase date, medianTicket numeric, lastTicket numeric, frequentStore char(14), lastStore char(14), isValid boolean)",tableName)
+func CreateTable(dbase *sql.DB)(error){
+	prepTableCreation := fmt.Sprintf("create table %s (id integer primary key, documento varchar(14) not null, private boolean, incomplete boolean, date_of_last_purchase date, median_ticket numeric, last_ticket numeric, frequent_store char(14), last_store char(14), is_valid boolean)",tableName)
 	_, err := dbase.Query(prepTableCreation)
 	return err
 }
 
-func CloseConnection(){
+func CloseConnection(dbase *sql.DB){
 	dbase.Close()
 }
 
-func BulkSendToDB(bulkRegistry []Registry) (error){
+func BulkSendToDB(bulkRegistry []Registry, dbase *sql.DB, wg *sync.WaitGroup) (error){
 
 	trsc, err := dbase.Begin()
 	if(err != nil){
-		log.Fatal(err)
+		wg.Done()
+		return err
 	}
 
-	stmt, err := trsc.Prepare(pq.CopyIn(tableName, "id", "documento", "private", "incomplete", "dateOfLastPurchase", "medianTicket", "lastTicket", "frequentStore", "lastStore", "isValid"))
+	stmt, err := trsc.Prepare(pq.CopyIn(tableName, "id", "documento", "private", "incomplete", "date_of_last_purchase", "median_ticket", "last_ticket", "frequent_store", "last_store", "is_valid"))
 	if(err != nil){
-		log.Print("1")
-		log.Fatal(err)
+		wg.Done()
+		return err
 	}
 
 	for i := range bulkRegistry{
@@ -112,28 +117,30 @@ func BulkSendToDB(bulkRegistry []Registry) (error){
 												fields.LastStore,
 												fields.IsValid)
 		if err != nil {
-			log.Print("2")
-			log.Fatal(err)
+			wg.Done()
+			return err
 		}
 	}
 
 	_, err = stmt.Exec()
 	if(err != nil){
-		log.Print("3")
-		log.Fatal(err)
+		wg.Done()
+		return err
 	}
 
 	err = stmt.Close()
 	if(err != nil){
-		log.Print("4")
-		log.Fatal(err)
+		wg.Done()
+		return err
 	}
 
 	err = trsc.Commit()
 	if(err != nil){
-		log.Print("5")
-		log.Fatal(err)
+		wg.Done()
+		return err
 	}
+
+	wg.Done()
 
 	return nil
 }
