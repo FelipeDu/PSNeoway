@@ -2,10 +2,11 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"log"
 	"fmt"
 	"strconv"
+	"strings"
 )
 /*
 const (
@@ -45,9 +46,10 @@ func GetLastID()(int64){
 	prepQuery := fmt.Sprintf("select max(id) from %s",tableName)
 	line, err := dbase.Query(prepQuery)
 	if(err != nil){
-		errorString := fmt.Sprintf("pq: relation \"%s\" does not exist",tableName)
-		if(err.Error() == errorString){
-			log.Printf("Table does \"%s\" not exist. Creating Table",tableName)
+		//errorString := fmt.Sprintf("pq: relation \"%s\" does not exist",tableName)
+		errorString := "does not exist"
+		if(strings.Contains(err.Error(), errorString)){
+			log.Printf("Table \"%s\" does not exist. Creating Table",tableName)
 			err = CreateTable()
 			if(err != nil){
 				log.Fatal(err)
@@ -78,4 +80,51 @@ func CreateTable()(error){
 
 func CloseConnection(){
 	dbase.Close()
+}
+
+func BulkSendToDB(bulkRegistry []Registry) (error){
+
+	trsc, err := dbase.Begin()
+	if(err != nil){
+		log.Fatal(err)
+	}
+
+	stmt, err := trsc.Prepare(pq.CopyIn(tableName, "id", "documento", "private", "incomplete", "dateOfLastPurchase", "medianTicket", "lastTicket", "frequentStore", "lastStore", "isValid"))
+	if(err != nil){
+		log.Fatal(err)
+	}
+
+	for i := range bulkRegistry{
+		fields := bulkRegistry[i]
+		_, err := stmt.Exec(fields.ID,
+												fields.PersonCompanyDocument,
+												fields.Private,
+												fields.Incomplete,
+												fields.DateLastPurchase,
+												fields.MedianTicket,
+												fields.LastTicket,
+												fields.FrequentStore,
+												fields.LastStore,
+												fields.IsValid)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	_, err = stmt.Exec()
+	if(err != nil){
+		log.Fatal(err)
+	}
+
+	err = stmt.Close()
+	if(err != nil){
+		log.Fatal(err)
+	}
+
+	err = trsc.Commit()
+	if(err != nil){
+		log.Fatal(err)
+	}
+
+	return nil
 }

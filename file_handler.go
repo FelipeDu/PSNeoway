@@ -11,6 +11,7 @@ import (
 
 var lastID int64
 var containsHeader bool = true
+const maxBulkSize = 10000
 
 type Handler interface {
 	PersistFile(fileLocation string)
@@ -59,18 +60,36 @@ func ParseAndInsert (file *os.File) (error) {
 	bufferReader := bufio.NewReader(file)
 	EOF := false
 	id := lastID
-	for !EOF {
-		if(!containsHeader || id != lastID){
-			id++
-			bufferedString, err := bufferReader.ReadString('\n')
-			if(err != nil){
-				if(err.Error() == "EOF"){
-					EOF = true
-				} else {
-					return err
-				}
+
+	if(containsHeader){
+		_, err := bufferReader.ReadString('\n')
+		if(err != nil){
+			if(err.Error() == "EOF"){
+				EOF = true
+			} else {
+				return err
 			}
-			ProcessLine(id,bufferedString)
+		}
+	}
+
+	var bulkRegistry []Registry
+	currentBulkSize := 0
+	for !EOF {
+		id++
+		bufferedString, err := bufferReader.ReadString('\n')
+		if(err != nil){
+			if(err.Error() == "EOF"){
+				EOF = true
+			} else {
+				return err
+			}
+		}
+		bulkRegistry = append(bulkRegistry, ProcessLine(id,bufferedString," "))
+		currentBulkSize++
+		if(currentBulkSize == maxBulkSize){
+			//TODO send slice to processing
+			currentBulkSize = 0
+			bulkRegistry = nil
 		}
 	}
 
