@@ -42,4 +42,4 @@ link referência para bulk inserts no banco: https://medium.com/@amoghagarwal/in
 
 Benchmark:
 
-![alt text](https://github.com/felipedu/PSNeoway/blob/benchmark/benchmark20exec.png?raw=true "Benchmark")
+![alt text](https://github.com/FelipeDu/PSNeoway/blob/main/benchmark/benchmark20execs.png?raw=true)
