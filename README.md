@@ -10,11 +10,15 @@ Como executar:
 
 Rode o seguinte comando para preparar o ambiente (deploy container e configurar banco):
 
-```sh make setup-env```
+```sh
+make setup-env
+```
 
 Execute o programa com o seguinte comando:
 
-```sh make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE="arquivoTeste/base_teste.txt"```
+```sh
+make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE="arquivoTeste/base_teste.txt"
+```
 
 A variavel "DB_URI" deve conter as informações necessárias para a conexão com o banco. Altere caso necessário para encaixar com a sua configuração.
 
@@ -22,7 +26,9 @@ A variavel "FILE" deve apontar para o arquivo a ser importado no banco.
 
 *Para simular um maior volume de dados, use a variavel NUM_EXECUTIONS e informe o numero de vezes o arquivo deve ser inserido no banco. Ex.:
 
-```sh make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE=arquivoTeste/base_teste.txt NUM_EXECUTIONS=10```
+```sh
+make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE=arquivoTeste/base_teste.txt NUM_EXECUTIONS=10
+```
 
 *Irá inserir o arquivo 10 vezes. As métricas aparecem nos logs da execução.
 
