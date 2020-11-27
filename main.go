@@ -15,6 +15,8 @@ import (
 //   dbname    = "postgres"
 //   tableName = "client_purchase_registry"
 // )
+// URI:
+// "postgres://service:service@localhost:5432/dblog?sslmode=disable"
 
 func main() {
 
@@ -24,8 +26,8 @@ func main() {
     log.Fatal("[ERROR] Please set database connection URI env")
   }
 
-  pathToFile := os.Args[1]
-
+	pathToFile := os.Getenv("FILE")
+	
   start := time.Now()
   numArquivos := 10
   dbase = ConnectToDB(dbURI)

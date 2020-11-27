@@ -10,16 +10,6 @@ import (
   "github.com/lib/pq"
 )
 
-/*
-const (
-  host     = "localhost"
-  port     = 5432
-  user     = "admin"
-  password = "admin"
-  dbname   = "dbneoway"
-)
-*/
-
 type DBConnector interface {
   ConnectToDB()
   GetLastID(*sql.DB) int64

@@ -145,7 +145,7 @@ func ProcessDocument(document string) (string, bool) {
   } else if stringSize == 14 {
     return processedDocument, VerifyCNPJ(processedDocument)
   } else {
-    log.Println(stringSize, document, processedDocument)
+    //log.Println(stringSize, document, processedDocument)
     return processedDocument, false
   }
 }
