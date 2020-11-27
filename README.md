@@ -39,3 +39,7 @@ Nesta condição o programa encerra em ~10 segundos, inserindo 1 arquivo (~50k r
 Utitizei uma metodoligia de bulk inserts através de transactions exemplificada no seguinte site (é o segundo método descrito pelo autor):
 
 link referência para bulk inserts no banco: https://medium.com/@amoghagarwal/insert-optimisations-in-golang-26884b183b35
+
+Benchmark:
+
+![alt text](https://github.com/felipedu/PSNeoway/blob/benchmark/benchmark20exec.png?raw=true "Benchmark")

@@ -13,7 +13,7 @@ import (
 var startFileInsert, finishFileInsert time.Time
 var lastID int64
 var containsHeader bool = true
-const maxBulkSize = 50000
+const maxBulkSize = 10000
 
 type Handler interface {
 	PersistFile(fileLocation string, dbase *sql.DB)
