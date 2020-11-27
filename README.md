@@ -10,11 +10,11 @@ Como executar:
 
 Rode o seguinte comando para preparar o ambiente (deploy container e configurar banco):
 
-make setup-env
+```sh make setup-env ```
 
 Execute o programa com o seguinte comando:
 
-make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE="arquivoTeste/base_teste.txt"
+```sh make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE="arquivoTeste/base_teste.txt" ```
 
 A variavel "DB_URI" deve conter as informações necessárias para a conexão com o banco. Altere caso necessário para encaixar com a sua configuração.
 

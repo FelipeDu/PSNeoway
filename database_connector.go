@@ -43,7 +43,7 @@ func GetLastID(dbase *sql.DB) int64 {
   if err != nil {
     errorString := fmt.Sprintf("relation \"%s\" does not exist", tableName)
     if strings.Contains(err.Error(), errorString) {
-      log.Printf("Table \"%s\" does not exist. Creating Table", tableName)
+      log.Printf("[INFO] Table \"%s\" does not exist. Creating Table", tableName)
       err = CreateTable(dbase)
       if err != nil {
         log.Fatal(err)
@@ -65,7 +65,7 @@ func GetLastID(dbase *sql.DB) int64 {
       if err != nil {
         log.Print(err)
       }
-      log.Printf("LastId Obtained Successfully: %d", lastID)
+      //log.Printf("[INFO] LastId Obtained Successfully: %d", lastID)
     }
   }
 

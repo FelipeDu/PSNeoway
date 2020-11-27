@@ -5,6 +5,7 @@ import (
   "log"
   "os"
   "time"
+  "strconv"
 )
 
 // const (
@@ -20,26 +21,40 @@ import (
 
 func main() {
 
+	fmt.Println("")
+	fmt.Println("")
+
   dbURI := os.Getenv("DB_URI")
+	pathToFile := os.Getenv("FILE")
 
   if dbURI == "" {
     log.Fatal("[ERROR] Please set database connection URI env")
   }
-
-	pathToFile := os.Getenv("FILE")
 	
   start := time.Now()
-  numArquivos := 10
+	numExecutions := 1
+	if(os.Getenv("NUM_EXECUTIONS") != ""){
+		varExecutions, err := strconv.ParseInt(os.Getenv("NUM_EXECUTIONS"),10, 0)
+		if(err == nil){
+			numExecutions = int(varExecutions)
+		}
+	}
+
   dbase = ConnectToDB(dbURI)
 
-  for i := 1; i <= numArquivos; i++ {
+  for i := 1; i <= numExecutions; i++ {
     PersistFile(pathToFile, dbase)
-  }
+	}
+	
+	fmt.Println("")
 
   end := time.Now()
   delta := end.Sub(start)
   CloseConnection(dbase)
-  fmt.Printf("Inserido %d arquivos em %.2f\n segundos.", numArquivos, delta.Seconds())
+  fmt.Printf("[INFO] Inserido %d arquivo(s) em %.2f segundos.\n", numExecutions, delta.Seconds())
 
-  log.Printf("DONE\n")
+	log.Printf("DONE\n")
+	
+	fmt.Println("")
+	fmt.Println("")
 }

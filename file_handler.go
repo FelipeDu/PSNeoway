@@ -5,9 +5,12 @@ import (
   "os"
   "bufio"
   "database/sql"
-  "sync"
+	"sync"
+	"time"
+	"fmt"
 )
 
+var startFileInsert, finishFileInsert time.Time
 var lastID int64
 var containsHeader bool = true
 const maxBulkSize = 10000
@@ -70,7 +73,10 @@ func ParseAndInsert (file *os.File) (error) {
     }
   }
 
-  var bulkRegistry []Registry
+	var bulkRegistry []Registry
+
+	startFileInsert = time.Now()
+
   currentBulkSize := 0
   for !EOF {
     id++
@@ -92,7 +98,10 @@ func ParseAndInsert (file *os.File) (error) {
     }
   }
 
-  wg.Wait()
+	wg.Wait()
+	
+	finishFileInsert = time.Now()
+	fmt.Printf("[INFO] Inserção de %d registros finalizada em %.2f segundos.\n", id - lastID , finishFileInsert.Sub(startFileInsert).Seconds())
 
   return nil
 }

@@ -1,5 +1,6 @@
 DB_URI?=
 FILE?=
+NUM_EXECUTIONS?=
 
 setup-env:
 	docker-compose -f ./docker/docker-compose.yml up -d
