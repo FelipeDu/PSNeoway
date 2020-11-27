@@ -24,13 +24,11 @@ A variavel "FILE" deve apontar para o arquivo a ser importado no banco.
 
 ```sh make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE=arquivoTeste/base_teste.txt NUM_EXECUTIONS=10```
 
-*Irá inserir o arquivo 10 vezes.
+*Irá inserir o arquivo 10 vezes. As métricas aparecem nos logs da execução.
 
 Para verificar a performance executei o programa configurado para inserir o arquivo 10 vezes. (NUM_EXECUTIONS=10)
 
 Nesta condição o programa encerra em ~10 segundos, inserindo 1 arquivo (~50k registros) por segundo.
-
-[INFO] Inserido 10 arquivo(s) em 9.90 segundos.
 
 Utitizei uma metodoligia de bulk inserts através de transactions exemplificada no seguinte site (é o segundo método descrito pelo autor):
 
