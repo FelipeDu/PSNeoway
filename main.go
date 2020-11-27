@@ -1,37 +1,43 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"time"
+  "fmt"
+  "log"
+  "os"
+  "time"
 )
 
-const (
-	host     	= "localhost"
-	port     	= 5432
-	user     	= "service"
-	password 	= "service"
-	dbname   	= "dbneoway"
-	tableName = "client_purchase_registry"
-)
+// const (
+//   host      = "localhost"
+//   port      = 5432
+//   user      = "service"
+//   password  = "service"
+//   dbname    = "postgres"
+//   tableName = "client_purchase_registry"
+// )
 
-func main(){
+func main() {
 
-	pathToFile := os.Args[1]
+  dbURI := os.Getenv("DB_URI")
 
-	start := time.Now()
-	numArquivos := 10
-	dbase = ConnectToDB()
+  if dbURI == "" {
+    log.Fatal("[ERROR] Please set database connection URI env")
+  }
 
-	for i := 1; i <= numArquivos; i++{
-		PersistFile(pathToFile, dbase)
-	}
+  pathToFile := os.Args[1]
 
-	end := time.Now()
-	delta := end.Sub(start)
-	CloseConnection(dbase)
-	fmt.Printf("Inserido %d arquivos em %.2f\n", numArquivos, delta.Seconds())
+  start := time.Now()
+  numArquivos := 10
+  dbase = ConnectToDB(dbURI)
 
-	log.Printf("DONE\n")
+  for i := 1; i <= numArquivos; i++ {
+    PersistFile(pathToFile, dbase)
+  }
+
+  end := time.Now()
+  delta := end.Sub(start)
+  CloseConnection(dbase)
+  fmt.Printf("Inserido %d arquivos em %.2f\n segundos.", numArquivos, delta.Seconds())
+
+  log.Printf("DONE\n")
 }
