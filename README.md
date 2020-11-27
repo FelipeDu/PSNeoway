@@ -1,4 +1,4 @@
-# PSNeoway
+# PSNeoway (Processo Seletivo Neoway)
 Serviço desenvolvido para o processo seletivo da Neoway.
 
 Autor: Felipe Pereira de Souza Duarte
@@ -25,7 +25,6 @@ A variavel "FILE" deve apontar para o arquivo a ser importado no banco.
 ```sh make run DB_URI="postgres://service:service@localhost:5432/postgres?sslmode=disable" FILE=arquivoTeste/base_teste.txt NUM_EXECUTIONS=10```
 
 *Irá inserir o arquivo 10 vezes.
-
 
 Para verificar a performance executei o programa configurado para inserir o arquivo 10 vezes. (NUM_EXECUTIONS=10)
 
